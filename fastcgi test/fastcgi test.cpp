@@ -2,6 +2,7 @@
 #include <sys/types.h> 
 #include <stdio.h> 
 #include <Windows.h> 
+#include <iostream> 
 
 #include <fastcgi/fcgi_config.h>
 #include <fastcgi/fcgiapp.h>
@@ -10,7 +11,7 @@
 #define THREAD_COUNT 8 
 #define SOCKET_PATH ":9000" 
 
-//хранит дескриптор открытого сокета 
+//хранит дескриптор открытого сокета.
 static int socketId;
 
 static void* doit(void* a)
@@ -47,7 +48,11 @@ static void* doit(void* a)
 
         //получить значение переменной 
         server_name = FCGX_GetParam("SERVER_NAME", request.envp);
-
+        std::cout << "Server name: " << server_name << std::endl;
+        server_name = FCGX_GetParam("REQUEST_METHOD", request.envp);
+        std::cout << "Method name: " << server_name << std::endl;
+        server_name = FCGX_GetParam("REQUEST_URI", request.envp);
+        std::cout << "REQUEST_URI name: " << server_name << std::endl;
         //вывести все HTTP-заголовки (каждый заголовок с новой строки) 
         FCGX_PutS("Content-type: text/html\r\n", request.out);
         //между заголовками и телом ответа нужно вывести пустую строку 
@@ -66,7 +71,7 @@ static void* doit(void* a)
         FCGX_PutS("</html>\r\n", request.out);
 
         //"заснуть" - имитация многопоточной среды 
-        Sleep(6000);
+        Sleep(20);
 
         //закрыть текущее соединение 
         FCGX_Finish_r(&request);
